@@ -1,0 +1,127 @@
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f4f4f4;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+}
+
+.container {
+    background-color: #fff;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    max-width: 600px;
+    width: 100%;
+}
+
+h1 {
+    text-align: center;
+}
+
+label {
+    font-weight: bold;
+}
+
+textarea {
+    width: 100%;
+    margin-top: 10px;
+    margin-bottom: 10px;
+}
+
+button {
+    display: block;
+    width: 100%;
+    padding: 10px;
+    background-color: #007BFF;
+    color: #fff;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+button:hover {
+    background-color: #0056b3;
+}
+
+.matrix-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+}
+
+.matrix-table, .matrix-table td {
+    border: 1px solid #ddd;
+}
+
+.matrix-table td {
+    padding: 10px;
+    text-align: center;
+}
+
+.input-matrix {
+    margin-top: 20px;
+}
+
+.input-matrix td {
+    padding: 5px;
+}
+
+.input-matrix input {
+    width: 50px;
+    padding: 5px;
+    text-align: center;
+}
+.container {
+    display: flex;
+    flex-direction: column;
+    align-items: center; /* Centriramo elemente po horizontalnoj osi */
+}
+
+form {
+    display: flex;
+    flex-direction: column;
+    align-items: center; /* Centriramo elemente po horizontalnoj osi */
+    margin-top: 20px; /* Dodajemo malo razmaka iznad forme */
+}
+
+button {
+    background-color: black;
+    color: white;
+    padding: 5px 10px;
+    font-size: 14px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    width: auto; /* Postavljamo širinu na automatsko kako bismo omogućili da se prilagodi sadržaju */
+    margin-top: 10px; /* Dodajemo malo razmaka iznad gumba */
+}
+
+button:hover {
+    background-color: darkgray;
+}
+
+.input-matrix-container {
+    display: inline-block;
+    position: relative;
+    text-align: center; /* Dodajemo ovu liniju kako bi centrirali sadržaj unutar kontejnera */
+}
+
+.opening-bracket,
+.closing-bracket {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+}
+
+.opening-bracket {
+    left: -120px; /* Prilagodite ovo ako je potrebno */
+}
+
+.closing-bracket {
+    right: -120px; /* Prilagodite ovo ako je potrebno */
+}
+
