@@ -7,7 +7,23 @@
     <link rel="stylesheet" href="style.css">
     <style>
         .opening-bracket, .closing-bracket {
-            font-weight: bold;
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+        }
+
+        .input-matrix-container {
+            display: inline-block;
+            position: relative;
+            text-align: center;
+        }
+
+        .input-matrix-container .opening-bracket {
+            left: -20%;
+        }
+
+        .input-matrix-container .closing-bracket {
+            right: -20%;
         }
     </style>
     <script>

@@ -108,20 +108,26 @@ button:hover {
     display: inline-block;
     position: relative;
     text-align: center; /* Dodajemo ovu liniju kako bi centrirali sadržaj unutar kontejnera */
+    margin-top: 20px;
 }
 
 .opening-bracket,
 .closing-bracket {
+    font-weight: bold;
     position: absolute;
     top: 50%;
     transform: translateY(-50%);
 }
 
 .opening-bracket {
-    left: -120px; /* Prilagodite ovo ako je potrebno */
+    left: -30px; 
 }
 
 .closing-bracket {
-    right: -120px; /* Prilagodite ovo ako je potrebno */
+    right: -30px; 
+}
+
+.input-matrix {
+    margin: 0 auto;
 }
 
