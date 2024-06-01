@@ -16,6 +16,9 @@ body {
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
     max-width: 600px;
     width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
 }
 
 h1 {
@@ -30,21 +33,6 @@ textarea {
     width: 100%;
     margin-top: 10px;
     margin-bottom: 10px;
-}
-
-button {
-    display: block;
-    width: 100%;
-    padding: 10px;
-    background-color: #007BFF;
-    color: #fff;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-}
-
-button:hover {
-    background-color: #0056b3;
 }
 
 .matrix-table {
@@ -75,17 +63,12 @@ button:hover {
     padding: 5px;
     text-align: center;
 }
-.container {
-    display: flex;
-    flex-direction: column;
-    align-items: center; /* Centriramo elemente po horizontalnoj osi */
-}
 
 form {
     display: flex;
     flex-direction: column;
-    align-items: center; /* Centriramo elemente po horizontalnoj osi */
-    margin-top: 20px; /* Dodajemo malo razmaka iznad forme */
+    align-items: center; 
+    margin-top: 20px; 
 }
 
 button {
@@ -96,8 +79,8 @@ button {
     border: none;
     border-radius: 4px;
     cursor: pointer;
-    width: auto; /* Postavljamo širinu na automatsko kako bismo omogućili da se prilagodi sadržaju */
-    margin-top: 10px; /* Dodajemo malo razmaka iznad gumba */
+    width: auto; 
+    margin-top: 10px; 
 }
 
 button:hover {
@@ -107,27 +90,20 @@ button:hover {
 .input-matrix-container {
     display: inline-block;
     position: relative;
-    text-align: center; /* Dodajemo ovu liniju kako bi centrirali sadržaj unutar kontejnera */
+    text-align: center; 
     margin-top: 20px;
 }
 
-.opening-bracket,
-.closing-bracket {
-    font-weight: bold;
+.opening-bracket, .closing-bracket {
     position: absolute;
     top: 50%;
     transform: translateY(-50%);
 }
 
-.opening-bracket {
-    left: -30px; 
+.input-matrix-container .opening-bracket {
+    left: -20%;
 }
 
-.closing-bracket {
-    right: -30px; 
+.input-matrix-container .closing-bracket {
+    right: -20%;
 }
-
-.input-matrix {
-    margin: 0 auto;
-}
-

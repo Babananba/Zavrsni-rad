@@ -5,27 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Matrica - Determinanta i Inverz</title>
     <link rel="stylesheet" href="style.css">
-    <style>
-        .opening-bracket, .closing-bracket {
-            position: absolute;
-            top: 50%;
-            transform: translateY(-50%);
-        }
-
-        .input-matrix-container {
-            display: inline-block;
-            position: relative;
-            text-align: center;
-        }
-
-        .input-matrix-container .opening-bracket {
-            left: -20%;
-        }
-
-        .input-matrix-container .closing-bracket {
-            right: -20%;
-        }
-    </style>
     <script>
         function validateInput(event) {
             const char = String.fromCharCode(event.which);
