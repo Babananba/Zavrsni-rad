@@ -15,10 +15,10 @@
                 return;
             }
 
-            // Allow only one decimal point and one minus sign at the beginning
             if (char === '.' && value.includes('.')) {
                 event.preventDefault();
             }
+
             if (char === '-' && value.length > 0) {
                 event.preventDefault();
             }
@@ -50,20 +50,21 @@
             echo '<form method="post">';
             echo '<input type="hidden" name="matrixSize" value="' . $size . '">';
         
-            // Određivanje veličine zagrade na temelju veličine matrice
-            $bracketSize = $size * 50; // Možete prilagoditi veličinu zagrada prema potrebi
+            $bracketSize = $size * 50;
         
             $openingBracket = '<span class="opening-bracket" style="font-size: ' . $bracketSize . 'px;">(</span>';
             $closingBracket = '<span class="closing-bracket" style="font-size: ' . $bracketSize . 'px;">)</span>';
-        
+
             echo '<div class="input-matrix-container">';
+            echo '<span class="label">A = </span>';
             echo $openingBracket;
         
             echo '<table class="input-matrix">';
             for ($i = 0; $i < $size; $i++) {
                 echo '<tr>';
                 for ($j = 0; $j < $size; $j++) {
-                    echo '<td><input type="text" name="matrix[' . $i . '][' . $j . ']" required onkeypress="validateInput(event)"></td>';
+                    $value = isset($_POST['matrix'][$i][$j]) ? $_POST['matrix'][$i][$j] : '';
+                    echo '<td><input type="text" name="matrix[' . $i . '][' . $j . ']" value="' . htmlspecialchars($value) . '" required onkeypress="validateInput(event)"></td>';
                 }
                 echo '</tr>';
             }
@@ -80,26 +81,42 @@
             include 'matrix_functions.php';
             $matrix = $_POST['matrix'];
 
-            // Convert all inputs to floats
             foreach ($matrix as &$row) {
                 foreach ($row as &$value) {
                     $value = floatval($value);
                 }
             }
             
-            echo "<h2>Vaša matrica:</h2>";
-            ispisiMatricu($matrix);
-
             $det = determinantaMatrice($matrix);
             echo "<h2>Determinanta matrice:</h2>";
-            echo "<p>$det</p>";
+            echo "<p><span style='font-weight: bold; font-style: italic;'>detA</span> = $det</p>";
 
             $inverz = izracunajInverz($matrix);
             echo "<h2>Inverz matrice:</h2>";
             if (is_string($inverz)) {
                 echo "<p>$inverz</p>";
             } else {
-                ispisiMatricu($inverz);
+                $bracketSize = $size * 50;
+
+                $openingBracket = '<span class="opening-bracket" style="font-size: ' . $bracketSize . 'px;">(</span>';
+                $closingBracket = '<span class="closing-bracket" style="font-size: ' . $bracketSize . 'px;">)</span>';
+
+                echo '<div class="input-matrix-container inverse-matrix-container">';
+                echo '<span class="label">A<sup>-1</sup> = </span>';
+                echo $openingBracket;
+
+                echo '<table class="input-matrix">';
+                foreach ($inverz as $row) {
+                    echo '<tr>';
+                    foreach ($row as $value) {
+                        echo '<td>' . htmlspecialchars($value) . '</td>';
+                    }
+                    echo '</tr>';
+                }
+                echo '</table>';
+
+                echo $closingBracket;
+                echo '</div>';
             }
         }
         ?>

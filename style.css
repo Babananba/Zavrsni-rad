@@ -51,7 +51,7 @@ textarea {
 }
 
 .input-matrix {
-    margin-top: 20px;
+    margin: 0 auto;
 }
 
 .input-matrix td {
@@ -88,7 +88,8 @@ button:hover {
 }
 
 .input-matrix-container {
-    display: inline-block;
+    display: flex;
+    align-items: center;
     position: relative;
     text-align: center; 
     margin-top: 20px;
@@ -106,4 +107,18 @@ button:hover {
 
 .input-matrix-container .closing-bracket {
     right: -20%;
+}
+
+.input-matrix-container .label {
+    margin-right: 10px; 
+    font-weight: bold;
+    font-style: italic;
+    position: absolute;
+    left: -70px;
+    top: 50%;
+    transform: translateY(-50%);
+}
+
+.inverse-matrix-container {
+    margin-top: 20px;
 }

@@ -100,4 +100,4 @@ function izracunajInverz($matrica) {
     }
     return $inverz;
 }
-?>
+
