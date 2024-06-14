@@ -28,7 +28,7 @@
 <body>
     <div class="container">
         <h1>Matrica - Determinanta i Inverz</h1>
-        <form method="post">
+        <form id="matrixForm" method="post">
             <label for="matrixSize">Odaberite veličinu matrice:</label><br>
             <select id="matrixSize" name="matrixSize" onchange="this.form.submit()">
                 <option value="">Odaberite...</option>
@@ -47,7 +47,7 @@
         <?php
         if (isset($_POST['matrixSize'])) {
             $size = intval($_POST['matrixSize']);
-            echo '<form method="post">';
+            echo '<form id="matrixInputForm" method="post">';
             echo '<input type="hidden" name="matrixSize" value="' . $size . '">';
         
             $bracketSize = $size * 50;
@@ -106,10 +106,11 @@
                 echo $openingBracket;
 
                 echo '<table class="input-matrix">';
-                foreach ($inverz as $row) {
+                for ($i = 0; $i < count($inverz); $i++) {
                     echo '<tr>';
-                    foreach ($row as $value) {
-                        echo '<td>' . htmlspecialchars($value) . '</td>';
+                    for ($j = 0; $j < count($inverz[$i]); $j++) {
+                        $value = number_format($inverz[$i][$j], 2);
+                        echo '<td><input type="text" value="' . htmlspecialchars($value) . '" readonly></td>';
                     }
                     echo '</tr>';
                 }
