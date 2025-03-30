@@ -7,6 +7,10 @@ body {
     justify-content: center;
     align-items: center;
     height: 100vh;
+    background-image: url('background.jpg'); /* Putanja do slike */
+    background-size: cover; /* Prikaz slike u cijelom prozoru */
+    background-position: center; /* Centriranje slike */
+    background-repeat: no-repeat; /* Ne ponavljati sliku */
 }
 
 .container {
@@ -27,6 +31,7 @@ h1 {
 
 label {
     font-weight: bold;
+    margin-right: 10px;
 }
 
 textarea {
@@ -41,7 +46,8 @@ textarea {
     margin-top: 20px;
 }
 
-.matrix-table, .matrix-table td {
+.matrix-table,
+.matrix-table td {
     border: 1px solid #ddd;
 }
 
@@ -67,8 +73,8 @@ textarea {
 form {
     display: flex;
     flex-direction: column;
-    align-items: center; 
-    margin-top: 20px; 
+    align-items: center;
+    margin-top: 20px;
 }
 
 button {
@@ -79,8 +85,8 @@ button {
     border: none;
     border-radius: 4px;
     cursor: pointer;
-    width: auto; 
-    margin-top: 10px; 
+    width: auto;
+    margin-top: 10px;
 }
 
 button:hover {
@@ -91,34 +97,75 @@ button:hover {
     display: flex;
     align-items: center;
     position: relative;
-    text-align: center; 
+    text-align: center;
     margin-top: 20px;
 }
 
-.opening-bracket, .closing-bracket {
+.opening-bracket,
+.closing-bracket {
     position: absolute;
-    top: 50%;
+    top: 42%;
     transform: translateY(-50%);
-}
-
-.input-matrix-container .opening-bracket {
-    left: -20%;
-}
-
-.input-matrix-container .closing-bracket {
-    right: -20%;
+    font-size: 20px; 
 }
 
 .input-matrix-container .label {
-    margin-right: 10px; 
-    font-weight: bold;
-    font-style: italic;
     position: absolute;
-    left: -70px;
+    left: -80px; 
     top: 50%;
     transform: translateY(-50%);
+    font-weight: bold;
+    font-style: italic;
 }
 
 .inverse-matrix-container {
     margin-top: 20px;
 }
+
+.input-matrix-wrapper {
+    display: flex;
+    align-items: center;
+}
+
+.matrix-container-2 .opening-bracket {
+    left: -20px; 
+}
+
+.matrix-container-2 .closing-bracket {
+    right: -18px; 
+}
+
+.matrix-container-3 .opening-bracket {
+    left: -32px 
+}
+
+.matrix-container-3 .closing-bracket {
+    right: -30px; 
+}
+
+.matrix-container-4 .opening-bracket {
+    left: -44px 
+}
+
+.matrix-container-4 .closing-bracket {
+    right: -40px; 
+}
+
+.matrix-container-5 .opening-bracket {
+    left: -58px 
+}
+
+.matrix-container-5 .closing-bracket {
+    right: -54px; 
+}
+
+#inverseContainer {
+    text-align: center; 
+}
+
+#inverseContainer button {
+    margin-top: 10px; 
+}
+
+
+
