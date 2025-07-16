@@ -7,10 +7,6 @@ body {
     justify-content: center;
     align-items: center;
     height: 100vh;
-    background-image: url('background.jpg'); /* Putanja do slike */
-    background-size: cover; /* Prikaz slike u cijelom prozoru */
-    background-position: center; /* Centriranje slike */
-    background-repeat: no-repeat; /* Ne ponavljati sliku */
 }
 
 .container {
