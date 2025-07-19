@@ -1,6 +1,7 @@
 <?php
 
-function ispisiMatricu($matrica) {
+function ispisiMatricu($matrica)
+{
     if (is_array($matrica)) {
         $n = count($matrica);
         echo '<table class="matrix-table">';
@@ -17,7 +18,8 @@ function ispisiMatricu($matrica) {
     }
 }
 
-function determinantaMatrice($matrica) {
+function determinantaMatrice($matrica)
+{
     $n = count($matrica);
 
     if ($n == 1) return $matrica[0][0];
@@ -39,7 +41,8 @@ function determinantaMatrice($matrica) {
     return $determinanta;
 }
 
-function izracunajInverz($matrica) {
+function izracunajInverz($matrica)
+{
     $n = count($matrica);
     $determinanta = determinantaMatrice($matrica);
     if ($determinanta == 0) {
@@ -93,25 +96,26 @@ function izracunajInverz($matrica) {
         $pivotalniElement = $matrica[$i][$i];
         for ($j = 0; $j < $n; $j++) {
             $inverz[$i][$j] /= $pivotalniElement;
-            $inverz[$i][$j] = round($inverz[$i][$j], 2); // ZAOKRUŽIVANJE
+            $inverz[$i][$j] = round($inverz[$i][$j], 2);
         }
     }
 
     return $inverz;
 }
 
-function decimalToFractionLatex($decimal, $tolerance = 1.0E-6) {
-    // Ako je broj cijeli
+function decimalToFractionLatex($decimal, $tolerance = 1.0E-6)
+{
     if (abs($decimal - round($decimal)) < $tolerance) {
         return (string)round($decimal);
     }
 
-    // Funkcija za aproksimaciju razlomka
     $sign = $decimal < 0 ? "-" : "";
     $decimal = abs($decimal);
 
-    $h1 = 1; $h2 = 0;
-    $k1 = 0; $k2 = 1;
+    $h1 = 1;
+    $h2 = 0;
+    $k1 = 0;
+    $k2 = 1;
     $b = $decimal;
 
     while (true) {
@@ -132,39 +136,34 @@ function decimalToFractionLatex($decimal, $tolerance = 1.0E-6) {
         }
 
         $b = 1 / ($b - $a);
-        if ($b > 1e6) break; // izbjegavaj prevelike nazivnike
+        if ($b > 1e6) break;
     }
 
-    // Ako je nazivnik 1, vrati cijeli broj
     if ($k1 == 1) {
         return $sign . $h1;
     }
 
-    // Provjeri koliko dobro aproksimira decimalu
     if (abs($decimal - ($h1 / $k1)) < $tolerance) {
         return $sign . "\\frac{" . $h1 . "}{" . $k1 . "}";
     }
 
-    // Inače vrati decimalu s 4 decimale
     return $sign . round($decimal, 4);
 }
 
-
-
-
-function generirajLatexMatricu($matrica, $format = 'fraction') {
+function generirajLatexMatricu($matrica, $format = 'fraction')
+{
     $latex = "\\begin{pmatrix}\n";
     $rows = [];
 
     foreach ($matrica as $row) {
-        $escapedRow = array_map(function($v) use ($format) {
+        $escapedRow = array_map(function ($v) use ($format) {
             if ($format === 'fraction') {
                 return decimalToFractionLatex($v);
             } else {
-                return number_format($v, 2); // fallback ako netko pozove s 'decimal'
+                return number_format($v, 2);
             }
         }, $row);
-
+        
         $rows[] = implode(" & ", $escapedRow);
     }
 

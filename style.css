@@ -102,12 +102,12 @@ button:hover {
     position: absolute;
     top: 42%;
     transform: translateY(-50%);
-    font-size: 20px; 
+    font-size: 20px;
 }
 
 .input-matrix-container .label {
     position: absolute;
-    left: -80px; 
+    left: -80px;
     top: 50%;
     transform: translateY(-50%);
     font-weight: bold;
@@ -124,44 +124,47 @@ button:hover {
 }
 
 .matrix-container-2 .opening-bracket {
-    left: -20px; 
+    left: -20px;
 }
 
 .matrix-container-2 .closing-bracket {
-    right: -18px; 
+    right: -18px;
 }
 
 .matrix-container-3 .opening-bracket {
-    left: -32px 
+    left: -32px
 }
 
 .matrix-container-3 .closing-bracket {
-    right: -30px; 
+    right: -30px;
 }
 
 .matrix-container-4 .opening-bracket {
-    left: -44px 
+    left: -44px
 }
 
 .matrix-container-4 .closing-bracket {
-    right: -40px; 
+    right: -40px;
 }
 
 .matrix-container-5 .opening-bracket {
-    left: -58px 
+    left: -58px
 }
 
 .matrix-container-5 .closing-bracket {
-    right: -54px; 
+    right: -54px;
 }
 
 #inverseContainer {
-    text-align: center; 
+    text-align: center;
 }
 
 #inverseContainer button {
-    margin-top: 10px; 
+    margin-top: 10px;
 }
 
-
-
+.left-bracket, .right-bracket {
+    font-size: 28px;
+    user-select: none;
+    line-height: 1;
+}
