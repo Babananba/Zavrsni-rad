@@ -1,111 +1,16 @@
 <?php
 
-function ispisiMatricu($matrica)
-{
-    if (is_array($matrica)) {
-        $n = count($matrica);
-        echo '<table class="matrix-table">';
-        for ($i = 0; $i < $n; $i++) {
-            echo '<tr>';
-            for ($j = 0; $j < $n; $j++) {
-                echo '<td>' . htmlspecialchars($matrica[$i][$j]) . '</td>';
-            }
-            echo '</tr>';
-        }
-        echo '</table>';
-    } else {
-        echo htmlspecialchars($matrica);
-    }
-}
-
-function determinantaMatrice($matrica)
-{
-    $n = count($matrica);
-
-    if ($n == 1) return $matrica[0][0];
-
-    $determinanta = 0;
-    for ($i = 0; $i < $n; $i++) {
-        $minor = array();
-        for ($j = 1; $j < $n; $j++) {
-            $temp = array();
-            for ($k = 0; $k < $n; $k++) {
-                if ($k != $i) {
-                    $temp[] = $matrica[$j][$k];
-                }
-            }
-            $minor[] = $temp;
-        }
-        $determinanta += pow(-1, $i) * $matrica[0][$i] * determinantaMatrice($minor);
-    }
-    return $determinanta;
-}
-
-function izracunajInverz($matrica)
-{
-    $n = count($matrica);
-    $determinanta = determinantaMatrice($matrica);
-    if ($determinanta == 0) {
-        return "Matrica je singularna, inverz ne postoji.";
-    }
-
-    $inverz = array();
-    for ($i = 0; $i < $n; $i++) {
-        for ($j = 0; $j < $n; $j++) {
-            $inverz[$i][$j] = ($i == $j) ? 1 : 0;
-        }
-    }
-
-    for ($i = 0; $i < $n; $i++) {
-        $maxRedak = $i;
-        for ($j = $i + 1; $j < $n; $j++) {
-            if (abs($matrica[$j][$i]) > abs($matrica[$maxRedak][$i])) {
-                $maxRedak = $j;
-            }
-        }
-        if ($maxRedak != $i) {
-            $tmp = $matrica[$i];
-            $matrica[$i] = $matrica[$maxRedak];
-            $matrica[$maxRedak] = $tmp;
-            
-            $tmp = $inverz[$i];
-            $inverz[$i] = $inverz[$maxRedak];
-            $inverz[$maxRedak] = $tmp;
-        }
-
-        $pivotalniElement = $matrica[$i][$i];
-        for ($j = $i + 1; $j < $n; $j++) {
-            $faktor = $matrica[$j][$i] / $pivotalniElement;
-            for ($k = 0; $k < $n; $k++) {
-                $matrica[$j][$k] -= $matrica[$i][$k] * $faktor;
-                $inverz[$j][$k] -= $inverz[$i][$k] * $faktor;
-            }
-        }
-    }
-
-    for ($i = $n - 1; $i >= 0; $i--) {
-        $pivotalniElement = $matrica[$i][$i];
-        for ($j = 0; $j < $i; $j++) {
-            $faktor = $matrica[$j][$i] / $pivotalniElement;
-            for ($k = 0; $k < $n; $k++) {
-                $inverz[$j][$k] -= $inverz[$i][$k] * $faktor;
-            }
-        }
-    }
-
-    for ($i = 0; $i < $n; $i++) {
-        $pivotalniElement = $matrica[$i][$i];
-        for ($j = 0; $j < $n; $j++) {
-            $inverz[$i][$j] /= $pivotalniElement;
-            $inverz[$i][$j] = round($inverz[$i][$j], 2);
-        }
-    }
-
-    return $inverz;
-}
+// ===================
+// 1. POMOĆNE FUNKCIJE
+// ===================
 
 function decimalToFractionLatex($decimal, $tolerance = 1.0E-6)
 {
+
+    if (abs($decimal) < 1e-10) {
+        return "0";
+    }
+
     if (abs($decimal - round($decimal)) < $tolerance) {
         return (string)round($decimal);
     }
@@ -113,10 +18,8 @@ function decimalToFractionLatex($decimal, $tolerance = 1.0E-6)
     $sign = $decimal < 0 ? "-" : "";
     $decimal = abs($decimal);
 
-    $h1 = 1;
-    $h2 = 0;
-    $k1 = 0;
-    $k2 = 1;
+    $h1 = 1; $h2 = 0;
+    $k1 = 0; $k2 = 1;
     $b = $decimal;
 
     while (true) {
@@ -132,9 +35,7 @@ function decimalToFractionLatex($decimal, $tolerance = 1.0E-6)
         if ($k1 == 0) break;
 
         $approx = $h1 / $k1;
-        if (abs($decimal - $approx) < $tolerance) {
-            break;
-        }
+        if (abs($decimal - $approx) < $tolerance) break;
 
         $b = 1 / ($b - $a);
         if ($b > 1e6) break;
@@ -158,13 +59,9 @@ function generirajLatexMatricu($matrica, $format = 'fraction')
 
     foreach ($matrica as $row) {
         $escapedRow = array_map(function ($v) use ($format) {
-            if ($format === 'fraction') {
-                return decimalToFractionLatex($v);
-            } else {
-                return number_format($v, 2);
-            }
+            return $format === 'fraction' ? decimalToFractionLatex($v) : number_format($v, 2);
         }, $row);
-        
+
         $rows[] = implode(" & ", $escapedRow);
     }
 
@@ -173,74 +70,6 @@ function generirajLatexMatricu($matrica, $format = 'fraction')
 
     return $latex;
 }
-
-function generirajPostupakInverza($matrica)
-{
-    $n = count($matrica);
-    $original = $matrica;
-    $inverz = [];
-
-    for ($i = 0; $i < $n; $i++) {
-        $inverz[$i] = array_fill(0, $n, 0);
-        $inverz[$i][$i] = 1;
-    }
-
-    $koraci = [];
-    $dodajKorak = function($opis, $a, $b) use (&$koraci) {
-        $koraci[] = "<p><strong>{$opis}</strong></p>";
-        $koraci[] = '$$ ' . generirajLatexProsirenuMatricu($a, $b) . ' $$';
-    };
-
-    $dodajKorak("Početna proširena matrica [A | I]:", $matrica, $inverz);
-
-    for ($i = 0; $i < $n; $i++) {
-        // Pivotiranje ako je potrebno
-        $pivot = $matrica[$i][$i];
-        if (abs($pivot) < 1e-12) {
-            for ($j = $i + 1; $j < $n; $j++) {
-                if (abs($matrica[$j][$i]) > abs($pivot)) {
-                    [$matrica[$i], $matrica[$j]] = [$matrica[$j], $matrica[$i]];
-                    [$inverz[$i], $inverz[$j]] = [$inverz[$j], $inverz[$i]];
-                    $dodajKorak("Zamjena redaka {$i}+1 i {$j}+1 jer je pivot element ≈ 0:", $matrica, $inverz);
-                    $pivot = $matrica[$i][$i];
-                    break;
-                }
-            }
-        }
-
-        if ($pivot == 0) {
-            $dodajKorak("Pivot element je nula — matrica nema inverz.", $matrica, $inverz);
-            break;
-        }
-
-        // Skaliranje reda da pivot postane 1
-        if (abs($pivot - 1.0) > 1e-10) {
-            for ($j = 0; $j < $n; $j++) {
-                $matrica[$i][$j] /= $pivot;
-                $inverz[$i][$j] /= $pivot;
-            }
-            $opis = "Dijelimo red " . ($i + 1) . " s " . decimalToFractionLatex($pivot);
-            $dodajKorak($opis, $matrica, $inverz);
-        }
-
-        // Eliminacija u ostalim redovima
-        for ($j = 0; $j < $n; $j++) {
-            if ($j == $i) continue;
-            $faktor = $matrica[$j][$i];
-            if (abs($faktor) > 1e-10) {
-                for ($k = 0; $k < $n; $k++) {
-                    $matrica[$j][$k] -= $faktor * $matrica[$i][$k];
-                    $inverz[$j][$k] -= $faktor * $inverz[$i][$k];
-                }
-                $opis = "Red " . ($j + 1) . " = Red " . ($j + 1) . " - (" . decimalToFractionLatex($faktor) . ") × Red " . ($i + 1);
-                $dodajKorak($opis, $matrica, $inverz);
-            }
-        }
-    }
-
-    return implode("\n", $koraci);
-}
-
 
 function generirajLatexProsirenuMatricu($a, $b)
 {
@@ -262,8 +91,69 @@ function generirajLatexProsirenuMatricu($a, $b)
     return "\\begin{bmatrix}\n" . implode(" \\\\ \n", $rows) . "\n\\end{bmatrix}";
 }
 
-function generirajPostupakDeterminante($matrica)
-{
+
+// ===================
+// 2. DETERMINANTA
+// ===================
+
+function determinantaGauss($matrica, &$koraci = null) {
+    $n = count($matrica);
+    $a = $matrica;
+    $det = 1;
+    $swaps = 0;
+
+    $dodajKorak = function($opis, $a) use (&$koraci) {
+        if (is_array($koraci)) {
+            $koraci[] = "<p><strong>{$opis}</strong></p>";
+            $koraci[] = '$$ ' . generirajLatexMatricu($a, 'fraction') . ' $$';
+        }
+    };
+
+    $dodajKorak("Početna matrica:", $a);
+
+    for ($i = 0; $i < $n; $i++) {
+        $maxRow = $i;
+        for ($j = $i + 1; $j < $n; $j++) {
+            if (abs($a[$j][$i]) > abs($a[$maxRow][$i])) {
+                $maxRow = $j;
+            }
+        }
+
+        if (abs($a[$maxRow][$i]) < 1e-12) {
+            $dodajKorak("Pivot je nula — determinanta je 0.", $a);
+            return 0;
+        }
+
+        if ($i != $maxRow) {
+            [$a[$i], $a[$maxRow]] = [$a[$maxRow], $a[$i]];
+            $swaps++;
+            $dodajKorak("Zamjena redaka " . ($i + 1) . " i " . ($maxRow + 1) . " (promjena predznaka)", $a);
+        }
+
+        for ($j = $i + 1; $j < $n; $j++) {
+            $f = $a[$j][$i] / $a[$i][$i];
+            for ($k = $i; $k < $n; $k++) {
+                $a[$j][$k] -= $f * $a[$i][$k];
+            }
+            $dodajKorak("Red " . ($j + 1) . " = Red " . ($j + 1) . " - (" . decimalToFractionLatex($f) . ") × Red " . ($i + 1), $a);
+        }
+    }
+
+    for ($i = 0; $i < $n; $i++) {
+        $det *= $a[$i][$i];
+    }
+
+    $det *= pow(-1, $swaps);
+    $dodajKorak("Završni trokutasti oblik. Računamo produkt dijagonale.", $a);
+
+    return $det;
+}
+
+function determinantaMatrice($matrica) {
+    return determinantaGauss($matrica);
+}
+
+function generirajPostupakDeterminante($matrica) {
     $n = count($matrica);
     $koraci = [];
 
@@ -291,7 +181,6 @@ function generirajPostupakDeterminante($matrica)
 
         $koraci[] = "<p><strong>Računanje determinante 3×3 matrice (Sarrusovo pravilo):</strong></p>";
         $koraci[] = '$$ A = ' . generirajLatexMatricu($matrica, 'fraction') . ' $$';
-
         $koraci[] = '$$ \det(A) = ' .
             decimalToFractionLatex($a) . '\cdot' . decimalToFractionLatex($e) . '\cdot' . decimalToFractionLatex($i) . ' + ' .
             decimalToFractionLatex($b) . '\cdot' . decimalToFractionLatex($f) . '\cdot' . decimalToFractionLatex($g) . ' + ' .
@@ -301,65 +190,96 @@ function generirajPostupakDeterminante($matrica)
             decimalToFractionLatex($b) . '\cdot' . decimalToFractionLatex($d) . '\cdot' . decimalToFractionLatex($i) . ' + ' .
             decimalToFractionLatex($a) . '\cdot' . decimalToFractionLatex($f) . '\cdot' . decimalToFractionLatex($h) .
             ')' . ' = ' . decimalToFractionLatex($det) . ' $$';
-
         return implode("\n", $koraci);
     }
 
-    // Inače koristi Gaussovu eliminaciju
-    return generirajPostupakDeterminante_Gauss($matrica);
+    $detKoraci = [];
+    $det = determinantaGauss($matrica, $detKoraci);
+    $detKoraci[] = "<p><strong>Determinanta: " . decimalToFractionLatex($det) . "</strong></p>";
+    return implode("\n", $detKoraci);
 }
 
-function generirajPostupakDeterminante_Gauss($matrica)
-{
-    $n = count($matrica);
-    $a = $matrica;
-    $koraci = [];
-    $det = 1;
-    $swaps = 0;
 
-    $dodajKorak = function($opis, $a) use (&$koraci) {
-        $koraci[] = "<p><strong>{$opis}</strong></p>";
-        $koraci[] = '$$ ' . generirajLatexMatricu($a, 'fraction') . ' $$';
+// ===================
+// 3. INVERZ MATRICE
+// ===================
+
+function gaussJordanInverz($matrica, &$koraci = null) {
+    $n = count($matrica);
+    $inverz = [];
+    for ($i = 0; $i < $n; $i++) {
+        $inverz[$i] = array_fill(0, $n, 0);
+        $inverz[$i][$i] = 1;
+    }
+
+    $dodajKorak = function($opis, $a, $b) use (&$koraci) {
+        if (is_array($koraci)) {
+            $koraci[] = "<p><strong>{$opis}</strong></p>";
+            $koraci[] = '$$ ' . generirajLatexProsirenuMatricu($a, $b) . ' $$';
+        }
     };
 
-    $dodajKorak("Početna matrica:", $a);
-
-    for ($i = 0; $i < $n; $i++) {
-        $maxRow = $i;
-        for ($j = $i + 1; $j < $n; $j++) {
-            if (abs($a[$j][$i]) > abs($a[$maxRow][$i])) {
-                $maxRow = $j;
-            }
-        }
-
-        if (abs($a[$maxRow][$i]) < 1e-12) {
-            $dodajKorak("Pivot je nula — determinanta je 0.", $a);
-            return implode("\n", $koraci) . "<p><strong>Determinanta: 0</strong></p>";
-        }
-
-        if ($i != $maxRow) {
-            [$a[$i], $a[$maxRow]] = [$a[$maxRow], $a[$i]];
-            $swaps++;
-            $dodajKorak("Zamjena redaka " . ($i + 1) . " i " . ($maxRow + 1) . " (promjena predznaka)", $a);
-        }
-
-        for ($j = $i + 1; $j < $n; $j++) {
-            $f = $a[$j][$i] / $a[$i][$i];
-            for ($k = $i; $k < $n; $k++) {
-                $a[$j][$k] -= $f * $a[$i][$k];
-            }
-            $opis = "Red " . ($j + 1) . " = Red " . ($j + 1) . " - (" . decimalToFractionLatex($f) . ") × Red " . ($i + 1);
-            $dodajKorak($opis, $a);
-        }
+    if (is_array($koraci)) {
+        $dodajKorak("Početna proširena matrica [A | I]:", $matrica, $inverz);
     }
 
     for ($i = 0; $i < $n; $i++) {
-        $det *= $a[$i][$i];
+        $pivot = $matrica[$i][$i];
+        if (abs($pivot) < 1e-12) {
+            for ($j = $i + 1; $j < $n; $j++) {
+                if (abs($matrica[$j][$i]) > abs($pivot)) {
+                    [$matrica[$i], $matrica[$j]] = [$matrica[$j], $matrica[$i]];
+                    [$inverz[$i], $inverz[$j]] = [$inverz[$j], $inverz[$i]];
+                    $dodajKorak("Zamjena redaka {$i}+1 i {$j}+1 jer je pivot element ≈ 0:", $matrica, $inverz);
+                    $pivot = $matrica[$i][$i];
+                    break;
+                }
+            }
+        }
+
+        if (abs($pivot - 1.0) > 1e-10) {
+            $opis = "Dijelimo red " . ($i + 1) . " s " . decimalToFractionLatex($pivot);
+        }
+
+        for ($j = 0; $j < $n; $j++) {
+            $matrica[$i][$j] /= $pivot;
+            $inverz[$i][$j] /= $pivot;
+        }
+
+        if (isset($opis)) {
+            $dodajKorak($opis, $matrica, $inverz);
+        }
+
+        for ($j = 0; $j < $n; $j++) {
+            if ($j == $i) continue;
+            $faktor = $matrica[$j][$i];
+            if (abs($faktor) > 1e-10) {
+                for ($k = 0; $k < $n; $k++) {
+                    $matrica[$j][$k] -= $faktor * $matrica[$i][$k];
+                    $inverz[$j][$k] -= $faktor * $inverz[$i][$k];
+                }
+                $opis = "Red " . ($j + 1) . " = Red " . ($j + 1) . " - (" . decimalToFractionLatex($faktor) . ") × Red " . ($i + 1);
+                $dodajKorak($opis, $matrica, $inverz);
+            }
+        }
     }
-    $det *= pow(-1, $swaps);
 
-    $dodajKorak("Završni trokutasti oblik. Računamo produkt dijagonale.", $a);
-    $koraci[] = "<p><strong>Determinanta: " . decimalToFractionLatex($det) . "</strong></p>";
+    return $inverz;
+}
 
+function izracunajInverz($matrica) {
+    $determinanta = determinantaMatrice($matrica);
+    if ($determinanta == 0) {
+        return "Matrica je singularna, inverz ne postoji.";
+    }
+    return gaussJordanInverz($matrica);
+}
+
+function generirajPostupakInverza($matrica) {
+    $koraci = [];
+    $inverz = gaussJordanInverz($matrica, $koraci);
+    if (!$inverz) {
+        return "Matrica nema inverz.";
+    }
     return implode("\n", $koraci);
 }

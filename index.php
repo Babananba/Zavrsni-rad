@@ -133,7 +133,7 @@
           [$g,$h,$i] = $matrix[2];
           $det = $a*$e*$i + $b*$f*$g + $c*$d*$h - $c*$e*$g - $b*$d*$i - $a*$f*$h;
       } else {
-          $det = determinantaMatrice($matrix); // koristi Laplace
+          $det = determinantaMatrice($matrix);
       }
       $inverz = izracunajInverz($matrix);
     ?>
