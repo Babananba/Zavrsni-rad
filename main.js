@@ -24,11 +24,11 @@ document.addEventListener('DOMContentLoaded', function () {
                         <input type="text" name="matrix_${i}_${j}"
                                class="matrix-input"
                                required
-                               onkeypress="validateInput(event)"
-                               onblur="validateField(this)"
+                               onkeydown="handleKeyDown(event)"
+                               oninput="validateNumberInput(this)"
                                autocomplete="off"
                                placeholder="0"
-                               inputmode="numeric">
+                               inputmode="decimal">
                     </td>
                 `;
             }
@@ -59,47 +59,116 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     };
 
-    window.validateField = function (input) {
-        const value = input.value.trim();
-        if (value === '' || isNaN(parseFraction(value))) {
+    // Validacija unosa
+    window.validateNumberInput = function (input) {
+        const value = input.value;
+
+        // Resetiraj stanje
+        input.classList.remove('is-invalid', 'negative');
+
+        // Provjeri prazno polje
+        if (value === '') {
+            return;
+        }
+
+        // Glavni regex pattern koji dopušta:
+        // 1. Negativne brojeve
+        // 2. Decimale u brojniku
+        // 3. Decimale u nazivniku
+        // 4. Decimale u oba
+        const validPattern = /^-?(\d+\.?\d*|\d*\.\d+)(\/(\d+\.?\d*|\d*\.\d+))?$/;
+
+        // Dodatna pravila
+        const isValid = validPattern.test(value) &&
+            (value.match(/\./g) || []).length <= 2 && // Max 2 točke (1 u brojniku, 1 u nazivniku)
+            (value.match(/\//g) || []).length <= 1 &&  // Max 1 kosa crta
+            !value.endsWith('.') &&                    // Ne može završavati točkom
+            !value.endsWith('/') &&                    // Ne može završavati kosom crtom
+            value !== '-';                             // Ne može biti samo minus
+
+        if (!isValid) {
             input.classList.add('is-invalid');
-        } else {
-            input.classList.remove('is-invalid');
+            return;
+        }
+
+        // Posebna provjera za razlomke
+        if (value.includes('/')) {
+            const [numerator, denominator] = value.split('/');
+
+            // Ne može biti prazan brojnik ili nazivnik
+            if (numerator === '' || denominator === '') {
+                input.classList.add('is-invalid');
+                return;
+            }
+        }
+
+        // Označi negativne brojeve
+        if (value.startsWith('-')) {
+            input.classList.add('negative');
         }
     };
 
-    window.validateInput = function (event) {
+    window.handleKeyDown = function (event) {
         const input = event.target;
         const char = event.key;
         const value = input.value;
+        const cursorPos = input.selectionStart;
+        const selectionLength = input.selectionEnd - cursorPos;
 
-        // Reset validation on new input
-        input.classList.remove('is-invalid');
+        // Dozvoli kontrolne tipke
+        if ([8, 9, 13, 16, 27, 37, 38, 39, 40].includes(event.keyCode)) {
+            return true;
+        }
 
-        if (!/[0-9\/.\-]/.test(char)) {
+        // Posebna logika za minus
+        if (char === '-') {
+            if (cursorPos === 0 || selectionLength === value.length) {
+                setTimeout(() => {
+                    input.value = value.startsWith('-') ?
+                        value.substring(1) : '-' + value;
+                    validateNumberInput(input);
+                }, 10);
+            }
             event.preventDefault();
-            return;
+            return false;
         }
-        if (char === '-' && value.length > 0) {
+
+        // Dozvoli samo brojeve, točku i kosu crtu
+        if (!/[0-9./]/.test(char)) {
             event.preventDefault();
-            return;
+            return false;
         }
-        if (char === '.' && (value.includes('.') || value.includes('/'))) {
-            event.preventDefault();
-            return;
+
+        // Provjeri decimalne točke
+        if (char === '.') {
+            const parts = value.split('/');
+            const currentPart = cursorPos <= value.indexOf('/') || !value.includes('/') ? 0 : 1;
+
+            // Provjeri da li već postoji točka u trenutnom dijelu (brojnik/nazivnik)
+            if (parts[currentPart] && parts[currentPart].includes('.')) {
+                event.preventDefault();
+                return false;
+            }
         }
-        if (char === '/' && (value.includes('/') || value.includes('.'))) {
-            event.preventDefault();
-            return;
+
+        // Provjeri kose crte
+        if (char === '/') {
+            if (value.includes('/') || value.endsWith('.')) {
+                event.preventDefault();
+                return false;
+            }
         }
+
+        return true;
     };
 
+    // Izračun matrice
     window.calculateMatrix = function () {
         const size = parseInt(document.querySelector('input[name="matrixSize"]').value);
         const matrix = [];
         let hasError = false;
 
-        // Validate all fields first
+        // Validacija svih polja
         document.querySelectorAll('.matrix-input').forEach(input => {
             const value = input.value.trim();
             if (value === '' || isNaN(parseFraction(value))) {
@@ -117,7 +186,7 @@ document.addEventListener('DOMContentLoaded', function () {
             return;
         }
 
-        // Read matrix values
+        // Očitaj vrijednosti matrice
         for (let i = 0; i < size; i++) {
             matrix[i] = [];
             for (let j = 0; j < size; j++) {
@@ -126,10 +195,15 @@ document.addEventListener('DOMContentLoaded', function () {
             }
         }
 
-        // Calculate inverse
+        // Izračunaj inverz
         const result = izracunajInverz(matrix);
 
-        // Display results
+        // Prikaži rezultate
+        displayResults(matrix, result);
+    };
+
+    // Prikaz rezultata
+    function displayResults(matrix, result) {
         let resultsHtml = `
             <div class="result-card">
                 <h5 class="fw-bold">Unesena matrica</h5>
@@ -178,16 +252,17 @@ document.addEventListener('DOMContentLoaded', function () {
 
         resultsContainer.innerHTML = resultsHtml;
 
-        // Refresh MathJax rendering
+        // Osvježi MathJax renderiranje
         if (typeof MathJax !== 'undefined') {
             MathJax.typesetPromise().catch(err => console.error(err));
         }
     };
 
+    // Resetiranje forme
     window.resetForm = function () {
         document.querySelectorAll('#matrixForm input[type="text"]').forEach(input => {
             input.value = "";
-            input.classList.remove('is-invalid');
+            input.classList.remove('is-invalid', 'negative');
         });
         resultsContainer.innerHTML = `
             <div class="alert alert-info">
@@ -196,18 +271,29 @@ document.addEventListener('DOMContentLoaded', function () {
         `;
     };
 
+    // Parsiranje razlomaka i decimalnih brojeva
     function parseFraction(value) {
         value = value.trim();
         if (value === '') return NaN;
 
-        if (value.includes('/')) {
-            const [num, den] = value.split('/', 2);
-            if (!isNaN(num) && !isNaN(den) && den != 0 && !num.includes('.') && !den.includes('.')) {
-                return parseFloat(num) / parseFloat(den);
-            }
-            return NaN;
+        const isNegative = value.startsWith('-');
+        if (isNegative) {
+            value = value.substring(1);
         }
-        return parseFloat(value) || (value === '0' ? 0 : NaN);
+
+        if (value.includes('/')) {
+            const [num, den] = value.split('/');
+            const numerator = parseFloat(num);
+            const denominator = parseFloat(den);
+
+            if (isNaN(numerator) || isNaN(denominator) || denominator === 0) {
+                return NaN;
+            }
+            return (isNegative ? -1 : 1) * (numerator / denominator);
+        }
+
+        const number = parseFloat(value);
+        return isNaN(number) ? NaN : (isNegative ? -number : number);
     }
 
     // Inicijalizacija početne matrice
