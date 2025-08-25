@@ -42,7 +42,7 @@ function decimalToFractionLatex(decimal, tolerance = 1.0E-6) {
     }
 
     if (Math.abs(decimal - (h1 / k1)) < tolerance) {
-        return sign + "\\frac{" + h1 + "}{" + k1 + "}";
+        return sign + String.raw`\frac{${h1}}{${k1}}`;
     }
 
     return sign + decimal.toFixed(4);
@@ -127,7 +127,7 @@ function determinantaGauss(matrica, koraci = null) {
             for (let k = i; k < n; k++) {
                 a[j][k] -= f * a[i][k];
             }
-            dodajKorak(`Red ${j + 1} = Red ${j + 1} - (${decimalToFractionLatex(f)}) × Red ${i + 1}`, a);
+            dodajKorak(`Red ${j + 1} = Red ${j + 1} - ($${decimalToFractionLatex(f)}$) × Red ${i + 1}`, a);
         }
     }
 
@@ -167,7 +167,8 @@ function generirajPostupakDeterminante(matrica) {
 
         koraci.push("<p><strong>Računanje determinante 2×2 matrice:</strong></p>");
         koraci.push(`$$ A = ${generirajLatexMatricu(matrica, 'fraction')} $$`);
-        koraci.push(`$$ \\det(A) = (${decimalToFractionLatex(a)}) \\cdot (${decimalToFractionLatex(d)}) - (${decimalToFractionLatex(b)}) \\cdot (${decimalToFractionLatex(c)}) = ${decimalToFractionLatex(det)} $$`);
+        koraci.push(`$$ \\det(A) = (${decimalToFractionLatex(a)}) \\cdot (${decimalToFractionLatex(d)}) 
+        - (${decimalToFractionLatex(b)}) \\cdot (${decimalToFractionLatex(c)}) = ${decimalToFractionLatex(det)} $$`);
         return koraci;
     }
 
@@ -179,11 +180,15 @@ function generirajPostupakDeterminante(matrica) {
 
         koraci.push("<p><strong>Računanje determinante 3×3 matrice (Sarrusovo pravilo):</strong></p>");
         koraci.push(`$$ A = ${generirajLatexMatricu(matrica, 'fraction')} $$`);
-        koraci.push(`$$ \\det(A) = ${decimalToFractionLatex(a)}\\cdot${decimalToFractionLatex(e)}\\cdot${decimalToFractionLatex(i)} + ${decimalToFractionLatex(b)}\\cdot${decimalToFractionLatex(f)}\\cdot${decimalToFractionLatex(g)} + ${decimalToFractionLatex(c)}\\cdot${decimalToFractionLatex(d)}\\cdot${decimalToFractionLatex(h)} - (${decimalToFractionLatex(c)}\\cdot${decimalToFractionLatex(e)}\\cdot${decimalToFractionLatex(g)} + ${decimalToFractionLatex(b)}\\cdot${decimalToFractionLatex(d)}\\cdot${decimalToFractionLatex(i)} + ${decimalToFractionLatex(a)}\\cdot${decimalToFractionLatex(f)}\\cdot${decimalToFractionLatex(h)}) = ${decimalToFractionLatex(det)} $$`);
+        koraci.push(`$$ \\det(A) = ${decimalToFractionLatex(a)}\\cdot${decimalToFractionLatex(e)}\\cdot${decimalToFractionLatex(i)}
+         + ${decimalToFractionLatex(b)}\\cdot${decimalToFractionLatex(f)}\\cdot${decimalToFractionLatex(g)}
+          + ${decimalToFractionLatex(c)}\\cdot${decimalToFractionLatex(d)}\\cdot${decimalToFractionLatex(h)}
+           - ${decimalToFractionLatex(c)}\\cdot${decimalToFractionLatex(e)}\\cdot${decimalToFractionLatex(g)}
+            + ${decimalToFractionLatex(b)}\\cdot${decimalToFractionLatex(d)}\\cdot${decimalToFractionLatex(i)}
+             + ${decimalToFractionLatex(a)}\\cdot${decimalToFractionLatex(f)}\\cdot${decimalToFractionLatex(h)} = ${decimalToFractionLatex(det)} $$`);
         return koraci;
     }
 
-    // Za matrice 4x4 i 5x5 koristimo Gaussovu eliminaciju
     const detKoraci = [];
     const det = determinantaGauss(matrica, detKoraci);
     detKoraci.push(`<p><strong>Determinanta: ${decimalToFractionLatex(det)}</strong></p>`);
@@ -212,7 +217,6 @@ function gaussJordanInverz(matrica, koraci = []) {
     dodajKorak("Početna proširena matrica [A | I]");
 
     for (let i = 0; i < n; i++) {
-        // Pivotiranje
         if (Math.abs(matrica[i][i]) < 1e-10) {
             let j = i + 1;
             while (j < n && Math.abs(matrica[j][i]) < 1e-10) j++;
@@ -223,17 +227,15 @@ function gaussJordanInverz(matrica, koraci = []) {
             dodajKorak(`Zamjena redaka ${i + 1} i ${j + 1} (zbog nultog pivota)`);
         }
 
-        // Normalizacija retka
         const pivot = matrica[i][i];
         if (Math.abs(pivot - 1) > 1e-10) {
             for (let j = 0; j < n; j++) {
                 matrica[i][j] /= pivot;
                 inverz[i][j] /= pivot;
             }
-            dodajKorak(`Dijeljenje retka ${i + 1} s ${decimalToFractionLatex(pivot)}`);
+            dodajKorak(`Dijeljenje retka ${i + 1} s $${decimalToFractionLatex(pivot)}$`);
         }
 
-        // Eliminacija
         for (let j = 0; j < n; j++) {
             if (j !== i && Math.abs(matrica[j][i]) > 1e-10) {
                 const faktor = matrica[j][i];
@@ -241,7 +243,7 @@ function gaussJordanInverz(matrica, koraci = []) {
                     matrica[j][k] -= faktor * matrica[i][k];
                     inverz[j][k] -= faktor * inverz[i][k];
                 }
-                dodajKorak(`Red ${j + 1} - (${decimalToFractionLatex(faktor)}) × Red ${i + 1}`);
+                dodajKorak(`Red ${j + 1} - ($${decimalToFractionLatex(faktor)}$) × Red ${i + 1}`);
             }
         }
     }
@@ -256,14 +258,13 @@ function izracunajInverz(matrica) {
 
 function generirajPostupakInverza(matrica) {
     const koraci = [];
-    const kopijaMatrice = matrica.map(row => [...row]); // Napravimo kopiju da ne mijenjamo original
+    const kopijaMatrice = matrica.map(row => [...row]);
     const inverz = gaussJordanInverz(kopijaMatrice, koraci);
 
     if (typeof inverz === 'string') {
         return [inverz];
     }
 
-    // Dodajemo konačni rezultat na kraj postupka
     koraci.push("<p><strong>Konačni inverz matrice:</strong></p>");
     koraci.push(`$$ A^{-1} = ${generirajLatexMatricu(inverz, 'fraction')} $$`);
 

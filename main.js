@@ -66,43 +66,32 @@ document.addEventListener('DOMContentLoaded', function () {
         // Resetiraj stanje
         input.classList.remove('is-invalid', 'negative');
 
-        // Provjeri prazno polje
         if (value === '') {
             return;
         }
 
-        // Glavni regex pattern koji dopušta:
-        // 1. Negativne brojeve
-        // 2. Decimale u brojniku
-        // 3. Decimale u nazivniku
-        // 4. Decimale u oba
         const validPattern = /^-?(\d+\.?\d*|\d*\.\d+)(\/(\d+\.?\d*|\d*\.\d+))?$/;
 
-        // Dodatna pravila
         const isValid = validPattern.test(value) &&
-            (value.match(/\./g) || []).length <= 2 && // Max 2 točke (1 u brojniku, 1 u nazivniku)
-            (value.match(/\//g) || []).length <= 1 &&  // Max 1 kosa crta
-            !value.endsWith('.') &&                    // Ne može završavati točkom
-            !value.endsWith('/') &&                    // Ne može završavati kosom crtom
-            value !== '-';                             // Ne može biti samo minus
+            (value.match(/\./g) || []).length <= 2 &&
+            (value.match(/\//g) || []).length <= 1 &&
+            !value.endsWith('.') &&
+            !value.endsWith('/') &&
+            value !== '-';
 
         if (!isValid) {
             input.classList.add('is-invalid');
             return;
         }
 
-        // Posebna provjera za razlomke
         if (value.includes('/')) {
             const [numerator, denominator] = value.split('/');
-
-            // Ne može biti prazan brojnik ili nazivnik
             if (numerator === '' || denominator === '') {
                 input.classList.add('is-invalid');
                 return;
             }
         }
 
-        // Označi negativne brojeve
         if (value.startsWith('-')) {
             input.classList.add('negative');
         }
@@ -115,12 +104,10 @@ document.addEventListener('DOMContentLoaded', function () {
         const cursorPos = input.selectionStart;
         const selectionLength = input.selectionEnd - cursorPos;
 
-        // Dozvoli kontrolne tipke
         if ([8, 9, 13, 16, 27, 37, 38, 39, 40].includes(event.keyCode)) {
             return true;
         }
 
-        // Posebna logika za minus
         if (char === '-') {
             if (cursorPos === 0 || selectionLength === value.length) {
                 setTimeout(() => {
@@ -133,25 +120,20 @@ document.addEventListener('DOMContentLoaded', function () {
             return false;
         }
 
-        // Dozvoli samo brojeve, točku i kosu crtu
         if (!/[0-9./]/.test(char)) {
             event.preventDefault();
             return false;
         }
 
-        // Provjeri decimalne točke
         if (char === '.') {
             const parts = value.split('/');
             const currentPart = cursorPos <= value.indexOf('/') || !value.includes('/') ? 0 : 1;
-
-            // Provjeri da li već postoji točka u trenutnom dijelu (brojnik/nazivnik)
             if (parts[currentPart] && parts[currentPart].includes('.')) {
                 event.preventDefault();
                 return false;
             }
         }
 
-        // Provjeri kose crte
         if (char === '/') {
             if (value.includes('/') || value.endsWith('.')) {
                 event.preventDefault();
@@ -168,7 +150,6 @@ document.addEventListener('DOMContentLoaded', function () {
         const matrix = [];
         let hasError = false;
 
-        // Validacija svih polja
         document.querySelectorAll('.matrix-input').forEach(input => {
             const value = input.value.trim();
             if (value === '' || isNaN(parseFraction(value))) {
@@ -186,7 +167,6 @@ document.addEventListener('DOMContentLoaded', function () {
             return;
         }
 
-        // Očitaj vrijednosti matrice
         for (let i = 0; i < size; i++) {
             matrix[i] = [];
             for (let j = 0; j < size; j++) {
@@ -195,14 +175,10 @@ document.addEventListener('DOMContentLoaded', function () {
             }
         }
 
-        // Izračunaj inverz
         const result = izracunajInverz(matrix);
-
-        // Prikaži rezultate
         displayResults(matrix, result);
     };
 
-    // Prikaz rezultata
     function displayResults(matrix, result) {
         let resultsHtml = `
             <div class="result-card">
@@ -222,13 +198,15 @@ document.addEventListener('DOMContentLoaded', function () {
                 </button>
             `;
 
-            // Calculate determinant steps
             const detSteps = generirajPostupakDeterminante(matrix);
             modalDetBody.innerHTML = `
                 <div class="modal-step-container">
                     ${detSteps.join('')}
                 </div>
             `;
+            if (typeof MathJax !== 'undefined') {
+                MathJax.typesetPromise([modalDetBody]).catch(err => console.error(err));
+            }
         } else {
             resultsHtml += `
                 <div class="text-center my-3">
@@ -239,7 +217,6 @@ document.addEventListener('DOMContentLoaded', function () {
                 </button>
             `;
 
-            // Prepare inversion steps modal
             modalInverzBody.innerHTML = `
                 <div class="modal-step-container">
                     ${result.koraci.join('')}
@@ -248,17 +225,18 @@ document.addEventListener('DOMContentLoaded', function () {
                     <p>$$ A^{-1} = ${generirajLatexMatricu(result.inverz)} $$</p>
                 </div>
             `;
+            if (typeof MathJax !== 'undefined') {
+                MathJax.typesetPromise([modalInverzBody]).catch(err => console.error(err));
+            }
         }
 
         resultsContainer.innerHTML = resultsHtml;
 
-        // Osvježi MathJax renderiranje
         if (typeof MathJax !== 'undefined') {
             MathJax.typesetPromise().catch(err => console.error(err));
         }
     };
 
-    // Resetiranje forme
     window.resetForm = function () {
         document.querySelectorAll('#matrixForm input[type="text"]').forEach(input => {
             input.value = "";
@@ -271,7 +249,6 @@ document.addEventListener('DOMContentLoaded', function () {
         `;
     };
 
-    // Parsiranje razlomaka i decimalnih brojeva
     function parseFraction(value) {
         value = value.trim();
         if (value === '') return NaN;
@@ -296,6 +273,5 @@ document.addEventListener('DOMContentLoaded', function () {
         return isNaN(number) ? NaN : (isNegative ? -number : number);
     }
 
-    // Inicijalizacija početne matrice
     generateMatrixInput(2);
 });
